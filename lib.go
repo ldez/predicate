@@ -32,6 +32,7 @@ func GetStringMapValue(mapVal, keyVal interface{}) (interface{}, error) {
 	if !ok {
 		return nil, trace.BadParameter("only string keys are supported")
 	}
+
 	switch m := mapVal.(type) {
 	case map[string][]string:
 		if len(m) == 0 {
@@ -39,11 +40,13 @@ func GetStringMapValue(mapVal, keyVal interface{}) (interface{}, error) {
 			var n []string
 			return n, nil
 		}
+
 		return m[key], nil
 	case map[string]string:
 		if len(m) == 0 {
 			return "", nil
 		}
+
 		return m[key], nil
 	default:
 		return nil, trace.BadParameter("type %T is not supported", m)
@@ -67,14 +70,17 @@ func Equals(a interface{}, b interface{}) BoolPredicate {
 			if !ok {
 				return false
 			}
+
 			if len(aval) != len(bval) {
 				return false
 			}
+
 			for i := range aval {
 				if aval[i] != bval[i] {
 					return false
 				}
 			}
+
 			return true
 		default:
 			return false
@@ -90,15 +96,18 @@ func Contains(a interface{}, b interface{}) BoolPredicate {
 		if !ok {
 			return false
 		}
+
 		bval, ok := b.(string)
 		if !ok {
 			return false
 		}
+
 		for _, v := range aval {
 			if v == bval {
 				return true
 			}
 		}
+
 		return false
 	}
 }
@@ -141,6 +150,7 @@ func GetFieldByTag(ival interface{}, tagName string, fieldNames []string) (inter
 	if val.Kind() != reflect.Struct {
 		return nil, trace.NotFound("field name %v is not found", strings.Join(fieldNames, "."))
 	}
+
 	fieldName := fieldNames[0]
 	rest := fieldNames[1:]
 

@@ -72,8 +72,10 @@ func (p *predicateParser) evaluateArguments(nodes []ast.Expr) ([]interface{}, er
 		if err != nil {
 			return nil, trace.Wrap(err)
 		}
+
 		out[i] = val
 	}
+
 	return out, nil
 }
 
@@ -123,6 +125,7 @@ func (p *predicateParser) evaluateExpr(n ast.Expr) (interface{}, error) {
 		if err != nil {
 			return nil, trace.Wrap(err)
 		}
+
 		return val, nil
 
 	case *ast.Ident:
@@ -134,6 +137,7 @@ func (p *predicateParser) evaluateExpr(n ast.Expr) (interface{}, error) {
 		if err != nil {
 			return nil, trace.Wrap(err)
 		}
+
 		return val, nil
 
 	case *ast.CallExpr:
@@ -181,6 +185,7 @@ func (p *predicateParser) getFunction(name string) (interface{}, error) {
 	if !ok {
 		return nil, trace.BadParameter("unsupported function: %s", name)
 	}
+
 	return v, nil
 }
 
@@ -195,6 +200,7 @@ func (p *predicateParser) joinPredicates(op token.Token, a, b interface{}) (inte
 
 func (p *predicateParser) getJoinFunction(op token.Token) (interface{}, error) {
 	var fn interface{}
+
 	switch op {
 	case token.NOT:
 		fn = p.d.Operators.NOT
@@ -215,9 +221,11 @@ func (p *predicateParser) getJoinFunction(op token.Token) (interface{}, error) {
 	case token.NEQ:
 		fn = p.d.Operators.NEQ
 	}
+
 	if fn == nil {
 		return nil, trace.BadParameter("%v is not supported", op)
 	}
+
 	return fn, nil
 }
 
@@ -228,6 +236,7 @@ func getIdentifier(node ast.Node) (string, error) {
 		if !okIdent {
 			return "", trace.BadParameter("expected selector identifier, got: %T", sexpr.X)
 		}
+
 		return fmt.Sprintf("%s.%s", id.Name, sexpr.Sel.Name), nil
 	}
 
@@ -235,6 +244,7 @@ func getIdentifier(node ast.Node) (string, error) {
 	if !ok {
 		return "", trace.BadParameter("expected identifier, got: %T", node)
 	}
+
 	return id.Name, nil
 }
 
@@ -245,6 +255,7 @@ func literalToValue(a *ast.BasicLit) (interface{}, error) {
 		if err != nil {
 			return nil, trace.BadParameter("failed to parse argument: %s, error: %s", a.Value, err)
 		}
+
 		return value, nil
 
 	case token.INT:
@@ -252,6 +263,7 @@ func literalToValue(a *ast.BasicLit) (interface{}, error) {
 		if err != nil {
 			return nil, trace.BadParameter("failed to parse argument: %s, error: %s", a.Value, err)
 		}
+
 		return value, nil
 
 	case token.STRING:
@@ -259,6 +271,7 @@ func literalToValue(a *ast.BasicLit) (interface{}, error) {
 		if err != nil {
 			return nil, trace.BadParameter("failed to parse argument: %s, error: %s", a.Value, err)
 		}
+
 		return value, nil
 	}
 
@@ -289,10 +302,12 @@ func callFunction(f interface{}, args []interface{}) (v interface{}, err error) 
 		if e == nil {
 			return v, nil
 		}
+
 		err, ok := e.(error)
 		if !ok {
 			return nil, trace.BadParameter("expected error as a second return value, got %T", e)
 		}
+
 		return v, err
 
 	default:

@@ -320,6 +320,7 @@ func (s *PredicateSuite) TestIndexExpr() {
 	getProperty := func(mapVal, keyVal interface{}) (interface{}, error) {
 		m := mapVal.(map[string]int)
 		k := keyVal.(string)
+
 		return m[k], nil
 	}
 
@@ -360,17 +361,20 @@ func (s *PredicateSuite) TestIdentifierExpr() {
 		case "num":
 			return 2, nil
 		}
+
 		return nil, nil
 	}
 	p := s.getParserWithOpts(getID, nil)
 
 	pr, err := p.Parse("Equals(firstSlice, firstSlice)")
 	s.NoError(err)
+
 	fn := pr.(BoolPredicate)
 	s.True(fn())
 
 	pr, err = p.Parse("Equals(a, a)")
 	s.NoError(err)
+
 	fn = pr.(BoolPredicate)
 	s.True(fn())
 
@@ -382,6 +386,7 @@ func (s *PredicateSuite) TestIdentifierExpr() {
 
 	pr, err = p.Parse("Remainder(4) <= num")
 	s.NoError(err)
+
 	fn2 := pr.(numberPredicate)
 	s.True(fn2(2))
 	s.False(fn2(3))
@@ -454,6 +459,7 @@ func (s *PredicateSuite) TestGetTagField() {
 		expect interface{}
 		err    error
 	}
+
 	testCases := []testCase{
 		// nested field
 		{tag: "json", val: val, fields: []string{"param", "key1"}, expect: val.Param.Key1},
@@ -492,6 +498,7 @@ func (s *PredicateSuite) TestUnhappyCases() {
 		"Remainder(3) >> 3",       // unsupported operator
 		`Remainder(3) > "banana"`, // unsupported comparison type
 	}
+
 	p := s.getParser()
 	for _, expr := range cases {
 		pr, err := p.Parse(expr)
@@ -542,6 +549,7 @@ func numberGT(m numberMapper, value interface{}) (numberPredicate, error) {
 	default:
 		return nil, fmt.Errorf("GT: unsupported argument type: %T", value)
 	}
+
 	return func(v int) bool {
 		switch val := value.(type) {
 		case int:

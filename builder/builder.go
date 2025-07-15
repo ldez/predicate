@@ -65,6 +65,7 @@ func (s StringsExpr) String() string {
 	for _, val := range s {
 		out = append(out, fmt.Sprintf("%q", val))
 	}
+
 	return strings.Join(out, ",")
 }
 

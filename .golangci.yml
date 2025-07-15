@@ -16,6 +16,7 @@ linters:
     - exhaustive
     - exhaustruct
     - forcetypeassert
+    - funcorder
     - ireturn
     - lll
     - mnd
@@ -30,7 +31,7 @@ linters:
     - tparallel
     - varnamelen
     - wrapcheck
-    - wsl
+    - wsl # deprecated
   settings:
     depguard:
       rules:
