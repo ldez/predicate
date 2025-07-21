@@ -20,7 +20,7 @@ type predicateParser struct {
 	d Def
 }
 
-func (p *predicateParser) Parse(in string) (interface{}, error) {
+func (p *predicateParser) Parse(in string) (any, error) {
 	expr, err := parser.ParseExpr(in)
 	if err != nil {
 		return nil, err
@@ -29,7 +29,7 @@ func (p *predicateParser) Parse(in string) (interface{}, error) {
 	return p.parse(expr)
 }
 
-func (p *predicateParser) parse(expr ast.Expr) (interface{}, error) {
+func (p *predicateParser) parse(expr ast.Expr) (any, error) {
 	switch n := expr.(type) {
 	case *ast.BinaryExpr:
 		x, err := p.parse(n.X)
@@ -58,15 +58,15 @@ func (p *predicateParser) parse(expr ast.Expr) (interface{}, error) {
 			return nil, err
 		}
 
-		return callFunction(joinFn, []interface{}{node})
+		return callFunction(joinFn, []any{node})
 
 	default:
 		return p.evaluateExpr(n)
 	}
 }
 
-func (p *predicateParser) evaluateArguments(nodes []ast.Expr) ([]interface{}, error) {
-	out := make([]interface{}, len(nodes))
+func (p *predicateParser) evaluateArguments(nodes []ast.Expr) ([]any, error) {
+	out := make([]any, len(nodes))
 	for i, n := range nodes {
 		val, err := p.evaluateExpr(n)
 		if err != nil {
@@ -79,7 +79,7 @@ func (p *predicateParser) evaluateArguments(nodes []ast.Expr) ([]interface{}, er
 	return out, nil
 }
 
-func (p *predicateParser) evaluateExpr(n ast.Expr) (interface{}, error) {
+func (p *predicateParser) evaluateExpr(n ast.Expr) (any, error) {
 	switch l := n.(type) {
 	case *ast.BasicLit:
 		val, err := literalToValue(l)
@@ -180,7 +180,7 @@ func evaluateSelector(sel *ast.SelectorExpr, fields []string) ([]string, error) 
 	}
 }
 
-func (p *predicateParser) getFunction(name string) (interface{}, error) {
+func (p *predicateParser) getFunction(name string) (any, error) {
 	v, ok := p.d.Functions[name]
 	if !ok {
 		return nil, trace.BadParameter("unsupported function: %s", name)
@@ -189,17 +189,17 @@ func (p *predicateParser) getFunction(name string) (interface{}, error) {
 	return v, nil
 }
 
-func (p *predicateParser) joinPredicates(op token.Token, a, b interface{}) (interface{}, error) {
+func (p *predicateParser) joinPredicates(op token.Token, a, b any) (any, error) {
 	joinFn, err := p.getJoinFunction(op)
 	if err != nil {
 		return nil, err
 	}
 
-	return callFunction(joinFn, []interface{}{a, b})
+	return callFunction(joinFn, []any{a, b})
 }
 
-func (p *predicateParser) getJoinFunction(op token.Token) (interface{}, error) {
-	var fn interface{}
+func (p *predicateParser) getJoinFunction(op token.Token) (any, error) {
+	var fn any
 
 	switch op {
 	case token.NOT:
@@ -248,7 +248,7 @@ func getIdentifier(node ast.Node) (string, error) {
 	return id.Name, nil
 }
 
-func literalToValue(a *ast.BasicLit) (interface{}, error) {
+func literalToValue(a *ast.BasicLit) (any, error) {
 	switch a.Kind {
 	case token.FLOAT:
 		value, err := strconv.ParseFloat(a.Value, 64)
@@ -278,7 +278,7 @@ func literalToValue(a *ast.BasicLit) (interface{}, error) {
 	return nil, trace.BadParameter("unsupported function argument type: '%v'", a.Kind)
 }
 
-func callFunction(f interface{}, args []interface{}) (v interface{}, err error) {
+func callFunction(f any, args []any) (v any, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = trace.BadParameter("%s", r)

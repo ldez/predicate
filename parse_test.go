@@ -35,17 +35,17 @@ func (s *PredicateSuite) getParserWithOpts(getID GetIdentifierFn, getProperty Ge
 			GE:  numberGE,
 			NOT: numberNOT,
 		},
-		Functions: map[string]interface{}{
+		Functions: map[string]any{
 			"DivisibleBy":        divisibleBy,
 			"Remainder":          numberRemainder,
 			"Len":                stringLength,
 			"number.DivisibleBy": divisibleBy,
 			"Equals":             Equals,
 			"Contains":           Contains,
-			"fnreturn": func(arg interface{}) (interface{}, error) {
+			"fnreturn": func(arg any) (any, error) {
 				return arg, nil
 			},
-			"fnerr": func(_ interface{}) (interface{}, error) {
+			"fnerr": func(_ any) (any, error) {
 				return nil, trace.BadParameter("don't like this parameter")
 			},
 		},
@@ -285,7 +285,7 @@ func (s *PredicateSuite) TestGTFloat64() {
 }
 
 func (s *PredicateSuite) TestSelectExpr() {
-	getID := func(fields []string) (interface{}, error) {
+	getID := func(fields []string) (any, error) {
 		s.Equal([]string{"first", "second", "third"}, fields)
 		return 2, nil
 	}
@@ -313,11 +313,11 @@ func (s *PredicateSuite) TestSelectExpr() {
 }
 
 func (s *PredicateSuite) TestIndexExpr() {
-	getID := func(fields []string) (interface{}, error) {
+	getID := func(fields []string) (any, error) {
 		s.Equal([]string{"first", "second"}, fields)
 		return map[string]int{"key": 2}, nil
 	}
-	getProperty := func(mapVal, keyVal interface{}) (interface{}, error) {
+	getProperty := func(mapVal, keyVal any) (any, error) {
 		m := mapVal.(map[string]int)
 		k := keyVal.(string)
 
@@ -348,7 +348,7 @@ func (s *PredicateSuite) TestIndexExpr() {
 }
 
 func (s *PredicateSuite) TestIdentifierExpr() {
-	getID := func(fields []string) (interface{}, error) {
+	getID := func(fields []string) (any, error) {
 		switch fields[0] {
 		case "firstSlice":
 			return []string{"a"}, nil
@@ -396,7 +396,7 @@ func (s *PredicateSuite) TestContains() {
 	val := TestStruct{}
 	val.Param.Key1 = map[string][]string{"key": {"a", "b", "c"}}
 
-	getID := func(fields []string) (interface{}, error) {
+	getID := func(fields []string) (any, error) {
 		return GetFieldByTag(val, "json", fields[1:])
 	}
 	p := s.getParserWithOpts(getID, GetStringMapValue)
@@ -418,7 +418,7 @@ func (s *PredicateSuite) TestEquals() {
 	val := TestStruct{}
 	val.Param.Key2 = map[string]string{"key": "a"}
 
-	getID := func(fields []string) (interface{}, error) {
+	getID := func(fields []string) (any, error) {
 		return GetFieldByTag(val, "json", fields[1:])
 	}
 	p := s.getParserWithOpts(getID, GetStringMapValue)
@@ -455,8 +455,8 @@ func (s *PredicateSuite) TestGetTagField() {
 	type testCase struct {
 		tag    string
 		fields []string
-		val    interface{}
-		expect interface{}
+		val    any
+		expect any
 		err    error
 	}
 
@@ -542,7 +542,7 @@ func numberRemainder(divideBy int) numberMapper {
 	}
 }
 
-func numberGT(m numberMapper, value interface{}) (numberPredicate, error) {
+func numberGT(m numberMapper, value any) (numberPredicate, error) {
 	switch value.(type) {
 	case int:
 	case float64:
