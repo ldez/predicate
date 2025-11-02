@@ -445,7 +445,7 @@ type TestStruct struct {
 	Param struct {
 		Key1 map[string][]string `json:"key1,omitempty"`
 		Key2 map[string]string   `json:"key2,omitempty"`
-	} `json:"param,omitempty"`
+	} `json:"param"`
 }
 
 func (s *PredicateSuite) TestGetTagField() {
@@ -476,6 +476,7 @@ func (s *PredicateSuite) TestGetTagField() {
 
 		out, err := GetFieldByTag(tc.val, tc.tag, tc.fields)
 		if tc.err != nil {
+			//nolint:testifylint
 			s.IsType(tc.err, err)
 		} else {
 			s.NoError(err, comment)

@@ -60,7 +60,7 @@ type BoolPredicate func() bool
 
 // Equals can compare complex objects, e.g. arrays of strings
 // and strings together.
-func Equals(a any, b any) BoolPredicate {
+func Equals(a, b any) BoolPredicate {
 	return func() bool {
 		switch aval := a.(type) {
 		case string:
@@ -91,7 +91,7 @@ func Equals(a any, b any) BoolPredicate {
 
 // Contains checks if string slice contains a string
 // Contains([]string{"a", "b"}, "b") -> true.
-func Contains(a any, b any) BoolPredicate {
+func Contains(a, b any) BoolPredicate {
 	return func() bool {
 		aval, ok := a.([]string)
 		if !ok {
